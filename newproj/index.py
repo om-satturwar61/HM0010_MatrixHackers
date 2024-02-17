@@ -15,43 +15,49 @@ collection = db['users']
 def index():
     return render_template('index.html')
 
-@app.route('/register', methods=['POST'])
-def register():
-    username = request.form['username']
-    password = request.form['password']
+# @app.route('/register', methods=['POST'])
+# def register():
+#     username = request.form['username']
+#     password = request.form['password']
     
-    # Hash the password before storing it
-    hashed_password = generate_password_hash(password)
+#     # Hash the password before storing it
+#     hashed_password = generate_password_hash(password)
     
-    # Check if username already exists
-    if collection.find_one({'username': username}):
-        return 'Username already exists'
+#     # Check if username already exists
+#     if collection.find_one({'username': username}):
+#         return 'Username already exists'
     
-    # Insert the user data into MongoDB
-    user_data = {'username': username, 'password': hashed_password}
-    collection.insert_one(user_data)
+#     # Insert the user data into MongoDB
+#     user_data = {'username': username, 'password': hashed_password}
+#     collection.insert_one(user_data)
     
-    return redirect(url_for('index'))
+#     return redirect(url_for('index'))
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST','GET'])
 def login():
-    username = request.form['username']
-    password = request.form['password']
-    
-    # Retrieve user data from MongoDB
-    user_data = collection.find_one({'username': username})
-    
-    if user_data and check_password_hash(user_data['password'], password):
-        session['logged_in'] = True
-        session['username'] = username
-        return redirect(url_for('dashboard'))
-    else:
-        return 'Invalid username or password'
+
+    if  request.method == 'POST':
+
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Retrieve user data from MongoDB
+        user_data = collection.find_one({'user_name': username})
+        
+        # if user_data and check_password_hash(user_data['password'], password):
+        if user_data and password == user_data["password"]:
+            session['logged_in'] = True
+            session['username'] = username
+            return redirect(url_for('dashboard'))
+        else:
+            return 'Invalid username or password'
+    return render_template("/login.html")
 
 @app.route('/dashboard')
 def dashboard():
     if 'logged_in' in session:
-        return f"Welcome {session['username']}! This is your dashboard."
+        return render_template("welcome.html",name=session['username'])
+
     else:
         return redirect(url_for('index'))
 
