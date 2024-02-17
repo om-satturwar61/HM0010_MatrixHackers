@@ -12,19 +12,38 @@
 
 <style>
    .container{
+    /* margin-top: 20px; */
+    border: 1px solid black;
+    border-radius: 1%;
+    box-shadow: 2px 2px 20px #333;
     display: flex;
+    justify-content: space-between;
     width:80%;
-    margin:auto;
+    margin:50px auto 0 auto;
     /* background-color: whitesmoke; */
 }
 
 .text-holder{
+    padding: 10px;
     width: 35%;
+    text-align: center;
 }
 
 .text>h1,h2,div{
     color: #4FA5D3;
 } 
+
+.subtext{
+
+  margin-top: 30px;
+}
+
+.start{
+
+  width:80%;
+  margin: 15px auto 15px auto;
+}
+
 </style>
 
 <body>
@@ -38,7 +57,7 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav" style="flex-direction:row-reverse">
-              <a class="nav-link active justify-content-end" aria-current="page" href="/templates/login.html" style="color: whitesmoke;"><h5>LOGIN  <i class="fa fa-solid fa-arrow-right"></i></h5></a>
+              <a class="nav-link active justify-content-end" aria-current="page" href="/login" style="color: whitesmoke;"><h5>LOGIN  <i class="fa fa-solid fa-arrow-right"></i></h5></a>
           </div>
         </div>
       </nav>
@@ -52,9 +71,9 @@
               <div>Share the miles, share the smiles.</div>
               <div><strong>Save Money, Save Time, Save the Planet.</strong></div>
             </div>
-            <button class="start btn btn-primary" href="/templates/welcome.html">Get Started!!</button>
+            <button class="start btn btn-primary" onclick="location.href ='/login';">Get Started!!</button>
           </div>
-          <img src="/static/bg.jfif" alt="BG" style="object-fit: cover;" width="100%;">
+          <img src="/static/bg.jfif" alt="BG" style="object-fit: contain;" height="300px;">
 
       </div>
     
