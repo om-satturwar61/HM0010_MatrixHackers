@@ -1,0 +1,17 @@
+.container{
+    display: flex;
+    width:80%;
+    margin:auto;
+    /* background-color: whitesmoke; */
+}
+
+.text-holder{
+    width: 35%;
+}
+.text-holder>h1,h2{
+    /* text-align: center; */
+}
+
+.text>h1,h2,div{
+    color: #4FA5D3;
+}
