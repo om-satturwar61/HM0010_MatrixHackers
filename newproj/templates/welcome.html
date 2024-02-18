@@ -1,11 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sticky Form</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@geoapify/geocoder-autocomplete@1.3.1/dist/geocoder-autocomplete.umd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: white;
+      display: flex;
+      height: 100vh;
+    }
+
+    #container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    #form-container {
+      width:40%;
+      margin-top:10vh;
+      padding: 20px;
+      background-color: white;
+      position: sticky;
+      top: 0;
+    }
+
+    #user-info-container {
+      width:30%;
+      flex: 1;
+      padding: 20px;
+      background-color: white;
+    }
+
+    #sticky-form{
+        /* border:1px solid black; */
+        border-radius: 2%;
+        background-color: white;
+        padding:50px 20px 50px 20px;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
+
+    }
+
+    form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    #user-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .user {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 5px;
+    }
+
+    #map{
+        height:90%;
+        width:100%;
+    }
+
+
+  </style>
 <body>
-    <h1>welcome to the page {{name}}</h1>
-</body>
-</html>
+  <div id="container">
+    <div id="form-container">
+      <form id="sticky-form">
+        <label for="startLocation">Start Location:</label>
+        <input type="text" id="startloc"  name="startLocation" onkeyup="getstartloc()" required>
+        <select id="suggestions-select-start" onclick="setstart()"></select>
+
+        <label for="endLocation">End Location:</label>
+        <input type="text" id="endLocation" name="endLocation"onkeyup="getendloc()"  required>
+        <select id="suggestions-select-end" onclick="setend()"></select>
+
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" onchange="setdate()" required>
+
+        <label for="time">Time:</label>
+        <input type="time" id="time" name="time" onchange="settime()" required>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Filter</button>
+      </form>
+    </div>
+    <div id="user-info-container">
+      <h2 style="text-align: center;">MAP</h2>
+      <div id="map"></div>
+    </div>
+  </div>
+
+<script>
+
+
+let doc={"start":null,"end":null, "date": null, "time": null};
+
+let elemStart = document.getElementById('startloc');
+let elemEnd = document.getElementById('endLocation');
+
+
+function getstartloc() {
+    let suggestionsSelect = document.getElementById('suggestions-select-start');
+
+    fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${elemStart.value}&apiKey=ccd7aabb2d0c4401b8030cba21f7afe8`)
+        .then(response => response.json())
+        .then(result => {
+            suggestionsSelect.innerHTML = ''; // Clear previous suggestions
+            result.features.forEach(feature => {
+                // Create option for each suggestion
+                let option = document.createElement('option');
+                option.value = feature.properties.formatted;
+                option.textContent = feature.properties.formatted;
+                suggestionsSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.log('error', error));
+}
+
+function getendloc() {
+    let suggestionsSelect = document.getElementById('suggestions-select-end');
+
+    fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${elemEnd.value}&apiKey=ccd7aabb2d0c4401b8030cba21f7afe8`)
+        .then(response => response.json())
+        .then(result => {
+            suggestionsSelect.innerHTML = ''; // Clear previous suggestions
+            result.features.forEach(feature => {
+                // Create option for each suggestion
+                let option = document.createElement('option');
+                option.value = feature.properties.formatted;
+                option.textContent = feature.properties.formatted;
+                suggestionsSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.log('error', error));
+}
+
+function setstart(){
+    doc["start"]=event.target.value
+    elem=document.getElementById("startLocation")
+    elem.value=event.target.value
+}
+
+function setend(){
+    doc["end"]=event.target.value
+    elem=document.getElementById("endLocation")
+    elem.value=event.target.value
+    elem.innerHTML=event.target.value
+}
+function setdate(){
+    doc["date"]=event.target.value
+}
+function settime(){
+    doc["time"]=event.target.value
+}
+
+// if ({{data}}==True){
+//     var map = L.map('map').setView([51.505, -0.09], 3);
+//     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+//         maxZoom: 19,
+//         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+//     }).addTo(map);
+// }
+// else{
+// const myAPIKey = "YOUR_API_KEY";
+// const fromWaypoint = [38.937165,-77.045590]; // latutude, longitude
+// const toWaypoint = [38.881152,-76.990693]; // latitude, longitude
+// const url = `https://api.geoapify.com/v1/routing?waypoints=${fromWaypoint.join(',')}|${toWaypoint.join(',')}&mode=drive&details=instruction_details&apiKey=${myAPIKey}`;
+
+fetch(url).then(res => res.json()).then(result => {
+    console.log(result);
+}, error => console.log(err));
+
+// }
+// setInterval(()=>{console.log(doc)},2000)
+
+</script>
