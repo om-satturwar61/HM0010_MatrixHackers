@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 
-app = Flask(__name__)
+app = Flask(_name_)
 app.secret_key = "MatrixHackers"
 
 # Connect to MongoDB
@@ -38,6 +38,7 @@ def index():
 def login():
 
     if  request.method == 'POST':
+        
 
         username = request.form['username']
         password = request.form['password']
@@ -54,31 +55,41 @@ def login():
             return 'Invalid username or password'
     return render_template("/login.html")
 
-@app.route('/dashboard')
+@app.route('/dashboard',methods=['POST','GET'])
 def dashboard():
     if 'logged_in' in session:
         if request.method=="GET":
-            return render_template("welcome.html")
+            return render_template("welcome.html",data=False)
         else:
-            pass
-            # d=req
-            # def geocode_address(api_key, address):
-            #     url = f"https://api.opencagedata.com/geocode/v1/json?q={address}&key={api_key}"
-            #     response = requests.get(url)
-            #     if response.status_code == 200:
-            #         data = response.json()
-            #         if len(data["results"]) > 0:
-            #             lat = data["results"][0]["geometry"]["lat"]
-            #             lng = data["results"][0]["geometry"]["lng"]
-            #             print(lat, lng)
-            #             return lat, lng
-            #         else:
-            #             print("No results found for the address:", address)
-            #             return None
-                    # else:
-                    #     print("Failed to geocode address:", response.text)
-                        # return None
-            # ans=geocode_address()
+            start=request.form['startLocation']
+            end=request.form['endLocation']
+
+            start_link=("%20".join(i for i in start.split(" "))).replace(",","%2C")
+            end_link="%20".join(i for i in end.split(" ")).replace(",","%2C")
+
+
+            print(start_link)
+            print(end_link)
+
+            def geocode_address(link):
+                api_key = "ccd7aabb2d0c4401b8030cba21f7afe8"
+                url = f"https://api.geoapify.com/v1/geocode/search?text={link}&filter=countrycode:in&apiKey=ccd7aabb2d0c4401b8030cba21f7afe8"
+
+                response=requests.get(url)
+
+                if response.status_code == 200:
+                    data = response.json()
+                    if data['features']:
+                        location = data['features'][0]['geometry']['coordinates']
+                        return location
+                else:
+                    print("Failed to geocode address:", response.text)
+                    return None
+                
+            vec_start=geocode_address(start_link)
+            vec_end=geocode_address(end_link)
+
+            return render_template("welcome.html",data=[vec_start,vec_end])
 
     else:
         return redirect(url_for('index'))
@@ -89,5 +100,5 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
 
-if __name__ == '__main__':
+if _name_ == '_main_':
     app.run(debug=True)
